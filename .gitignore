@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+vcl/
+.venv/
+env/
+venv/
+ENV/
+.env
+
+# Database
+radiology_ai.db
+
+# Storage
+backend/uploads/*
+backend/anonymized/*
+!backend/uploads/.gitkeep
+!backend/anonymized/.gitkeep
+
+# Node
+node_modules/
+dist/
+.next/
+out/
+build/
+.turbo/
+
+# OS
+.DS_Store
+Thumbs.db

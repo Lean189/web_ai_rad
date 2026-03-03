@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+python-multipart
+sqlalchemy
+pydicom
+numpy
+pillow
+torch
+torchvision
+requests
