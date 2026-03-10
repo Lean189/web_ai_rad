@@ -53,6 +53,7 @@ export default function App() {
     };
 
     const handleSelectStudy = (study: Study) => {
+        setSelectedStack([]); // Clear stack when browsing history
         setSelectedStudy(study);
         setView("viewer");
     };
