@@ -1,57 +1,50 @@
-# RadAI Rx - Plataforma de IA para Radiología Interactiva
+# RadAI Rx - Plataforma de IA para Radiología Interactiva (BETA)
 
 RadAI Rx es una plataforma avanzada de análisis de imágenes médicas que utiliza Inteligencia Artificial para la detección de patologías en Rayos X, Tomografías (CT) y Resonancias Magnéticas (MR). El sistema está diseñado como una estación de trabajo interactiva que permite a los médicos validar, corregir y "enseñar" a la IA a través de un bucle de retroalimentación clínica.
+
+> [!CAUTION]
+>
+> ### ⚖️ Aviso Legal / Clinical Disclaimer
+>
+> Este software es un **PROTOTIPO DE INVESTIGACIÓN** y se encuentra en fase **BETA**.
+> **NO ESTÁ CERTIFICADO PARA USO CLÍNICO NI DIAGNÓSTICO**.
+> Las predicciones de la IA deben ser validadas por profesionales médicos titulados. El autor no se responsabiliza por decisiones médicas tomadas basadas en este sistema.
 
 ## 🚀 Características Principales
 
 - **Análisis Multi-Experto AI**: El sistema utiliza expertos especializados según la modalidad (Tórax, Cerebro, General).
-- **Visor DICOM Profesional**: Basado en CornerstoneJS, soporta:
-  - Navegación por stacks (series completas).
-  - Modo CINE (Auto-reproducción).
-  - Herramientas de medición, zoom, pan y sonda.
-  - Preajustes de ventana diagnóstica (Cerebro, Hueso, Pulmón, etc.).
-- **Centro de Enseñanza (Feedback Loop)**: Módulo interactivo para que los expertos confirmen o corrijan los hallazgos de la IA, permitiendo el aprendizaje supervisado.
-- **Procesamiento Masivo**: Soporte para subida de carpetas completas y procesamiento secuencial de series.
-- **Base de Conocimiento Médica**: Diccionario de patologías y hallazgos modular y fácilmente expandible.
-- **Anonimizado Automático**: Cumplimiento de privacidad mediante el anonimizado de metadatos sensibles en archivos DICOM.
+- **Visor DICOM Profesional**: Basado en CornerstoneJS, soporta navegación por stacks, modo CINE y herramientas de medición.
+- **Centro de Enseñanza (Feedback Loop)**: Módulo interactivo para que los expertos confirmen o corrijan los hallazgos de la IA.
+- **Privacidad Local**: Anonimizado automático de metadatos sensibles en archivos DICOM antes de cualquier procesamiento.
 
 ## 🛠️ Stack Tecnológico
 
 - **Backend**: FastAPI (Python), SQLAlchemy (SQLite), PyTorch, PyDicom.
-- **Frontend**: React + Vite, Tailwind CSS, Lucide Icons, CornerstoneJS.
-- **IA**: Modelos basados en DenseNet121 y lógica experta modular.
+- **Frontend**: React + Vite, Tailwind CSS, CornerstoneJS.
+- **IA**: Modelos basados en DenseNet121 con lógica experta modular.
+
+## 🧠 Arquitectura del Sistema
+
+El sistema opera bajo un esquema de **"Human-in-the-loop"**, donde la IA propone y el especialista dispone. Las correcciones realizadas en la interfaz quedan registradas para futuros procesos de re-entrenamiento (fine-tuning), cerrando el ciclo de aprendizaje clínico.
 
 ## 📦 Instalación y Uso
 
 ### Requisitos
+
 - Python 3.10+
 - Node.js 18+
 
-### Backend
-1. Navega a `/backend`.
-2. Instala dependencias: `pip install -r requirements.txt`.
-3. Inicia el servidor: `python main.py`.
+### Configuración Rápida
 
-### Frontend
-1. Navega a `/frontend_vite`.
-2. Instala dependencias: `npm install`.
-3. Inicia el modo desarrollo: `npm run dev`.
+1. **Backend**: `cd backend && pip install -r requirements.txt && python main.py`
+2. **Frontend**: `cd frontend_vite && npm install && npm run dev`
 
-## 🧠 Estructura del Proyecto
+## 🗺️ Roadmap de Desarrollo
 
-```text
-/backend
-  ├── main.py              # Orquestador API
-  ├── database.py          # Modelos de datos y SQLite
-  ├── service_ai.py        # Motor de IA Multi-Experto
-  ├── knowledge_base.py    # Diccionario médico modular
-  ├── service_report.py    # Generación de informes
-  └── utils_anonymize.py   # Utilidades DICOM
-/frontend_vite
-  ├── src/components/      # Componentes UI de alto nivel
-  ├── src/services/        # Capa de servicios / API
-  └── src/types/           # Definiciones TypeScript
-```
+- [ ] Implementación de Fine-Tuning en tiempo real.
+- [ ] Integración con sistemas PACS mediante estándar DICOMweb.
+- [ ] Reportes PDF generados automáticamente con firma digital.
 
-## 🤝 Contribuciones
-Este es un proyecto en fase de aprendizaje activo. Las correcciones médicas realizadas a través de la interfaz alimentan directamente el futuro entrenamiento de los modelos.
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia MIT. Consulta el archivo `LICENSE` para más detalles.

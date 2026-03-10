@@ -12,13 +12,17 @@ from utils_anonymize import anonymize_dicom
 from service_ai import analyze_image
 from service_report import generate_report, get_mock_report
 
-app = FastAPI(title="Radiology AI API")
+app = FastAPI(
+    title="RadAI Rx API",
+    version="0.1.0-beta",
+    description="Backend para análisis interactivo de imágenes médicas con IA. AVISO: Prototipo de investigación, NO apto para uso clínico."
+)
 
 # CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )

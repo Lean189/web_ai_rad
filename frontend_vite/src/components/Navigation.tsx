@@ -14,9 +14,14 @@ export const Navigation = ({ currentView, setView }: NavigationProps) => {
                     <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">
                         <Activity className="text-white w-6 h-6" />
                     </div>
-                    <span className="text-2xl font-black tracking-tighter">
-                        RadAI <span className="text-blue-500">Rx</span>
-                    </span>
+                    <div className="flex flex-col">
+                        <span className="text-2xl font-black tracking-tighter leading-none">
+                            RadAI <span className="text-blue-500">Rx</span>
+                        </span>
+                        <span className="text-[10px] uppercase font-bold tracking-widest text-blue-400/80 mt-0.5">
+                            Beta Protocol
+                        </span>
+                    </div>
                 </div>
                 <div className="flex gap-2 bg-slate-900/50 p-1.5 rounded-2xl border border-white/5">
                     <button

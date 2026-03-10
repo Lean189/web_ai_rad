@@ -75,13 +75,19 @@ export const UploadSection = ({ files, setFiles, handleUpload, loading }: Upload
                 {[
                     { label: "Modality Support", value: "RX, CT, MRI" },
                     { label: "Processing Time", value: "< 2 Seconds" },
-                    { label: "Anonymization", value: "HIPAA Compliant" }
+                    { label: "Anonymization", value: "Local HIPAA" }
                 ].map((stat, i) => (
                     <div key={i} className="bg-white/5 border border-white/10 p-6 rounded-2xl text-center">
                         <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">{stat.label}</p>
                         <p className="text-white font-black text-lg">{stat.value}</p>
                     </div>
                 ))}
+            </div>
+
+            <div className="mt-12 p-6 rounded-3xl bg-blue-500/5 border border-blue-500/10 text-center">
+                <p className="text-sm text-slate-400 leading-relaxed">
+                    <span className="font-bold text-blue-400">🛡️ Nota de Privacidad:</span> Los archivos DICOM son **anonimizados automáticamente en este equipo** antes de ser procesados. Los datos sensibles del paciente (Nombre, ID, Institución) nunca salen de su entorno local.
+                </p>
             </div>
         </div>
     );
