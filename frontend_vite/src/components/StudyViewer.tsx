@@ -15,23 +15,15 @@ export const StudyViewer = ({ study, stack = [] }: StudyViewerProps) => {
         : [studyService.getImageUrl(study.anonymized_path)];
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-[calc(100vh-10rem)] animate-in fade-in zoom-in-95 duration-700">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-[calc(100vh-8rem)] animate-in fade-in zoom-in-95 duration-700">
             {/* Image Section */}
-            <div className="lg:col-span-8 bg-black rounded-[2.5rem] border border-white/5 overflow-hidden relative group shadow-inner">
-                <div className="absolute top-6 left-6 z-20 flex gap-3 flex-wrap">
-                    <span className="bg-blue-600/90 backdrop-blur-xl px-4 py-2 rounded-xl text-xs font-black tracking-widest text-white border border-white/20 shadow-2xl uppercase">
-                        {study.modality || "DICOM"} {imageUrls.length > 1 ? `STACK (${imageUrls.length})` : 'SINGLE'}
-                    </span>
-                    <span className="bg-indigo-600/90 backdrop-blur-xl px-4 py-2 rounded-xl text-xs font-black tracking-widest text-white border border-white/20 shadow-2xl uppercase flex items-center gap-2">
-                        <Activity size={12} /> Estación de Trabajo
-                    </span>
-                </div>
-                <DicomViewer imageUrls={imageUrls} />
+            <div className="lg:col-span-8 bg-black rounded-[2.5rem] border border-white/10 overflow-hidden relative shadow-2xl flex flex-col">
+                <DicomViewer imageUrls={imageUrls} study={study} />
             </div>
 
             {/* Panel Section */}
-            <div className="lg:col-span-4 space-y-6 flex flex-col h-full custom-scrollbar overflow-y-auto pr-2">
-                <div className="bg-slate-900/40 backdrop-blur-md border border-white/5 p-8 rounded-[2rem] shadow-2xl">
+            <div className="lg:col-span-4 space-y-6 flex flex-col h-full overflow-y-auto custom-scrollbar pr-2">
+                <div className="bg-slate-900/40 backdrop-blur-md border border-white/5 p-8 rounded-[2rem] shadow-2xl shrink-0">
                     <div className="flex justify-between items-start mb-6">
                         <h3 className="text-xl font-black flex items-center gap-3 text-blue-400">
                             <Brain className="w-6 h-6" /> Resultado AI
@@ -64,7 +56,7 @@ export const StudyViewer = ({ study, stack = [] }: StudyViewerProps) => {
                 </div>
 
                 {/* Centro de Enseñanza */}
-                <div className="bg-blue-600/10 backdrop-blur-md border border-blue-500/20 p-8 rounded-[2rem] shadow-2xl">
+                <div className="bg-blue-600/10 backdrop-blur-md border border-blue-500/20 p-8 rounded-[2rem] shadow-2xl shrink-0">
                     <h3 className="text-xl font-black mb-6 flex items-center gap-3 text-indigo-400">
                         <Activity className="w-6 h-6" /> Centro de Enseñanza
                     </h3>
@@ -98,7 +90,7 @@ export const StudyViewer = ({ study, stack = [] }: StudyViewerProps) => {
                     )}
                 </div>
 
-                <div className="bg-slate-900/40 backdrop-blur-md border border-white/5 p-8 rounded-[2rem] shadow-2xl flex-1 flex flex-col min-h-[300px]">
+                <div className="bg-slate-900/40 backdrop-blur-md border border-white/5 p-8 rounded-[2rem] shadow-2xl flex-1 flex flex-col min-h-[400px] shrink-0">
                     <h3 className="text-xl font-black mb-6 flex items-center gap-3 text-blue-400">
                         <FileText className="w-6 h-6" /> Borrador del Informe
                     </h3>

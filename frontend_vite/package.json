@@ -11,9 +11,11 @@
     "dependencies": {
         "@cornerstonejs/core": "^1.78.2",
         "@cornerstonejs/dicom-image-loader": "^1.78.2",
+        "@cornerstonejs/streaming-image-volume-loader": "^1.86.1",
         "@cornerstonejs/tools": "^1.78.2",
         "axios": "^1.7.9",
         "dicom-parser": "^1.8.21",
+        "framer-motion": "^12.35.2",
         "lucide-react": "^0.473.0",
         "react": "^18.3.1",
         "react-dom": "^18.3.1"

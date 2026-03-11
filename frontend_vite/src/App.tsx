@@ -12,6 +12,7 @@ export default function App() {
     const [selectedStudy, setSelectedStudy] = useState<Study | null>(null);
     const [selectedStack, setSelectedStack] = useState<Study[]>([]);
     const [loading, setLoading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
     const [view, setView] = useState<View>("upload");
 
     const fetchHistory = useCallback(async () => {
@@ -30,12 +31,11 @@ export default function App() {
     const handleUpload = async () => {
         if (files.length === 0) return;
         setLoading(true);
+        setUploadProgress(0);
         try {
-            const processedBatch: Study[] = [];
-            for (const file of files) {
-                const res = await studyService.processStudy(file);
-                processedBatch.push(res);
-            }
+            const processedBatch = await studyService.processStudy(files, (p) => {
+                setUploadProgress(p);
+            });
 
             if (processedBatch.length > 0) {
                 setSelectedStack(processedBatch);
@@ -45,15 +45,18 @@ export default function App() {
             fetchHistory();
         } catch (e) {
             console.error(e);
-            alert("Error procesando algunos archivos. Por favor verifique el formato.");
+            alert("Error procesando los archivos.");
         } finally {
             setLoading(false);
+            setUploadProgress(0);
             setFiles([]);
         }
     };
 
-    const handleSelectStudy = (study: Study) => {
-        setSelectedStack([]); // Clear stack when browsing history
+    const handleSelectStudy = (study: Study, stack: Study[] = []) => {
+        // Find all studies of the same batch/type if not provided
+        const fullStack = stack.length > 0 ? stack : studies.filter(s => s.study_type === study.study_type);
+        setSelectedStack(fullStack);
         setSelectedStudy(study);
         setView("viewer");
     };
@@ -69,6 +72,7 @@ export default function App() {
                         setFiles={setFiles}
                         handleUpload={handleUpload}
                         loading={loading}
+                        progress={uploadProgress}
                     />
                 )}
 

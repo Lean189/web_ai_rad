@@ -13,11 +13,19 @@ export const studyService = {
         return res.data;
     },
 
-    processStudy: async (file: File): Promise<Study> => {
+    processStudy: async (files: File[], onProgress?: (p: number) => void): Promise<Study[]> => {
         const formData = new FormData();
-        formData.append("file", file);
+        files.forEach(file => {
+            formData.append("files", file);
+        });
         const res = await api.post("/process-study", formData, {
             headers: { "Content-Type": "multipart/form-data" },
+            onUploadProgress: (progressEvent) => {
+                if (onProgress && progressEvent.total) {
+                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    onProgress(percentCompleted);
+                }
+            }
         });
         return res.data;
     },
@@ -39,7 +47,8 @@ export const studyService = {
     },
 
     getImageUrl: (path: string) => {
-        const filename = path.split(/[\\/]/).pop();
-        return `${API_BASE}/images/${filename}`;
+        const normalizedPath = path.replace(/\\/g, '/');
+        const filename = normalizedPath.split('/').pop();
+        return `${window.location.origin}${API_BASE}/images/${filename}`;
     },
 };

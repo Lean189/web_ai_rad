@@ -22,7 +22,15 @@ def anonymize_dicom(input_path: str, output_path: str):
         
         for tag in tags_to_clear:
             if tag in ds:
-                ds[tag].value = "ANONYMOUS"
+                vr = ds[tag].VR
+                if vr == 'DA':
+                    ds[tag].value = '' # Empty date is usually valid
+                elif vr == 'AS':
+                    ds[tag].value = '000Y'
+                elif tag == (0x0010, 0x0040): # Patient's Sex
+                    ds[tag].value = 'O' # Other
+                else:
+                    ds[tag].value = "ANONYMOUS"
         
         ds.save_as(output_path)
         return True

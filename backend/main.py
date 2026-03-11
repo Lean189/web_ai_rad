@@ -27,6 +27,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.middleware("http")
+async def add_security_headers(request, call_next):
+    response = await call_next(request)
+    response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+    response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
+    return response
+
 # DB Dependency
 def get_db():
     db = SessionLocal()
@@ -42,60 +49,105 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(ANONYMIZED_DIR, exist_ok=True)
 
 # Mount static files to serve images to Cornerstone
-app.mount("/images", StaticFiles(directory=ANONYMIZED_DIR), name="images")
+app.mount("/images", StaticFiles(directory=os.path.abspath(ANONYMIZED_DIR)), name="images")
 
 @app.get("/")
 async def root():
     return {"message": "Radiology AI Backend is running and connected to DB"}
 
 @app.post("/process-study")
-async def process_study(file: UploadFile = File(...), db: Session = Depends(get_db)):
-    # 1. Save Original
-    file_id = str(uuid.uuid4())
-    ext = os.path.splitext(file.filename)[1]
-    original_path = os.path.join(UPLOAD_DIR, f"{file_id}{ext}")
+async def process_study(files: List[UploadFile] = File(...), db: Session = Depends(get_db)):
+    batch_id = str(uuid.uuid4())
+    processed_studies = []
     
-    with open(original_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    print(f"Processing Batch {batch_id} with {len(files)} files...")
     
-    # 2. Anonymize (if DICOM)
-    anonymized_path = os.path.join(ANONYMIZED_DIR, f"{file_id}{ext}")
-    is_dicom = ext.lower() == ".dcm"
-    if is_dicom:
-        success = anonymize_dicom(original_path, anonymized_path)
-        if not success:
-            anonymized_path = original_path # Fallback or error
-    else:
-        shutil.copy(original_path, anonymized_path)
+    # Representative results for the whole stack
+    # We will sample up to 10 slices to analyze
+    num_samples = min(10, len(files))
+    sample_indices = [int(i * (len(files) - 1) / (num_samples - 1)) for i in range(num_samples)] if num_samples > 1 else [0]
+    
+    aggregated_results = []
+    
+    for i, file in enumerate(files):
+        # 1. Save Original
+        file_id = str(uuid.uuid4())
+        ext = os.path.splitext(file.filename)[1] or ".dcm"
+        original_path = os.path.join(UPLOAD_DIR, f"{file_id}{ext}")
+        
+        with open(original_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        
+        # 2. Anonymize (if DICOM)
+        anonymized_path = os.path.join(ANONYMIZED_DIR, f"{file_id}{ext}")
+        is_dicom = ext.lower() == ".dcm"
+        if is_dicom:
+            success = anonymize_dicom(original_path, anonymized_path)
+            if not success:
+                anonymized_path = original_path
+        else:
+            shutil.copy(original_path, anonymized_path)
 
-    # 3. AI Analysis
-    ai_results = analyze_image(anonymized_path)
-    
-    # 4. Generate Report Draft
-    report_draft = generate_report(ai_results["pathology"], ai_results["findings"])
-    if "Error" in report_draft: # Fallback
-        report_draft = get_mock_report(ai_results["pathology"], ai_results["findings"])
+        # 3. AI Analysis (Sampled slices)
+        results = None
+        if i in sample_indices:
+            print(f"Running AI analysis on slice {i}/{len(files)} ({file.filename})")
+            results = analyze_image(anonymized_path)
+            aggregated_results.append(results)
 
-    # 5. Save to DB
-    new_study = Study(
-        filename=file.filename,
-        modality=ai_results["modality"],
-        original_path=original_path,
-        anonymized_path=anonymized_path,
-        status="Analyzed",
-        pathology_detected=ai_results["pathology"],
-        confidence=ai_results["confidence"],
-        ai_report_draft=report_draft
-    )
-    db.add(new_study)
+        # 4. Save to DB with batch_id
+        # We'll use a placeholder for now and update with aggregated results
+        new_study = Study(
+            filename=file.filename,
+            modality="Unknown",
+            original_path=original_path,
+            anonymized_path=anonymized_path,
+            status="Analyzed",
+            pathology_detected="Processing...",
+            confidence=0.0,
+            ai_report_draft="",
+            study_type=batch_id
+        )
+        db.add(new_study)
+        processed_studies.append(new_study)
+    
+    # 5. Aggregate Findings
+    # We pick the "most serious" finding or the first one detected
+    final_res = aggregated_results[0] if aggregated_results else {"modality": "CT", "pathology": "Sin hallazgos", "findings": [], "confidence": 0.8}
+    for res in aggregated_results:
+        if "Sin hallazgos" not in res["pathology"]:
+            final_res = res
+            break
+            
+    report_draft = generate_report(final_res["pathology"], final_res["findings"])
+    if "Error" in report_draft:
+        report_draft = get_mock_report(final_res["pathology"], final_res["findings"])
+
+    # Update all slices in DB with the final representative data
+    for s in processed_studies:
+        s.modality = final_res["modality"]
+        s.pathology_detected = final_res["pathology"]
+        s.confidence = final_res["confidence"]
+    
+    # Only put the full report in the middle slice to avoid DB bloat
+    middle_idx = len(processed_studies) // 2
+    processed_studies[middle_idx].ai_report_draft = report_draft
+
     db.commit()
-    db.refresh(new_study)
-    
-    return new_study
+    return [{"id": s.id, "filename": s.filename, "anonymized_path": s.anonymized_path.replace("\\", "/"), 
+             "study_type": s.study_type, "modality": s.modality, "pathology_detected": s.pathology_detected,
+             "status": s.status, "created_at": s.created_at, "confidence": s.confidence,
+             "ai_report_draft": s.ai_report_draft, "final_report": s.final_report, "is_verified": s.is_verified} 
+            for s in processed_studies]
 
 @app.get("/history")
 async def get_history(db: Session = Depends(get_db)):
-    return db.query(Study).order_by(Study.created_at.desc()).all()
+    studies = db.query(Study).order_by(Study.id.desc()).all()
+    return [{"id": s.id, "filename": s.filename, "anonymized_path": s.anonymized_path.replace("\\", "/"), 
+             "study_type": s.study_type, "modality": s.modality, "pathology_detected": s.pathology_detected, 
+             "status": s.status, "created_at": s.created_at, "confidence": s.confidence,
+             "ai_report_draft": s.ai_report_draft, "final_report": s.final_report, "is_verified": s.is_verified} 
+            for s in studies]
 
 @app.post("/feedback")
 async def save_feedback(

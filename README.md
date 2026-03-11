@@ -12,10 +12,10 @@ RadAI Rx es una plataforma avanzada de análisis de imágenes médicas que utili
 
 ## 🚀 Características Principales
 
-- **Análisis Multi-Experto AI**: El sistema utiliza expertos especializados según la modalidad (Tórax, Cerebro, General).
-- **Visor DICOM Profesional**: Basado en CornerstoneJS, soporta navegación por stacks, modo CINE y herramientas de medición.
-- **Centro de Enseñanza (Feedback Loop)**: Módulo interactivo para que los expertos confirmen o corrijan los hallazgos de la IA.
-- **Privacidad Local**: Anonimizado automático de metadatos sensibles en archivos DICOM antes de cualquier procesamiento.
+- **Análisis Multi-Experto AI**: El sistema propone diagnósticos preliminares utilizando modelos especializados.
+- **Estación de Trabajo HD-MPR**: Visor profesional basado en CornerstoneJS con reconstrucción multiplanar integrada (Axial, Sagital, Coronal).
+- **Centro de Enseñanza (Feedback Loop)**: Módulo interactivo para capturar correcciones del especialista.
+- **Privacidad Local**: Anonimización robusta de metadatos sensibles (PHI) en archivos DICOM localmente.
 
 ## 🛠️ Stack Tecnológico
 
